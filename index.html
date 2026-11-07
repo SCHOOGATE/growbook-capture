@@ -22,6 +22,7 @@
   .sub{background:#fff;color:var(--blue);border:2px solid var(--blue);padding:14px 0;font-size:16px}
   .card{background:var(--card);border-radius:12px;padding:12px;margin-top:12px;font-size:15px;line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.08);word-break:break-all}
   .ok{color:var(--ok);font-weight:bold}.ng{color:var(--red);font-weight:bold}.wait{color:#888}
+  a{color:var(--blue)}
   .hint{font-size:13px;color:#666;margin:6px 4px 0;line-height:1.5}
   #timer{font-size:28px;text-align:center;margin-top:8px;font-variant-numeric:tabular-nums;min-height:1em}
   #setup{display:none}
@@ -53,6 +54,7 @@
   <input id="lib" type="file" accept="image/*" multiple>
 
   <button class="btn sub" id="memobtn" type="button">メモだけ送る</button>
+  <button class="btn sub" id="openroot" type="button">📂 保存先を開く（Googleドライブ）</button>
   <p class="hint">送り先は、あなた自身の Google ドライブ「GrowBookForge材料」フォルダだけです。</p>
   <div id="list"></div>
 </div>
@@ -60,7 +62,7 @@
 <script>
 (function () {
   'use strict';
-  var VERSION = 'capture-web v0.2';
+  var VERSION = 'capture-web v0.2.1';
   var CH = 2000000;           // base64 で約2MBずつ（4の倍数）
   var KEY = 'gb_cfg';
 
@@ -99,6 +101,19 @@
     var last = store('gb_book'); if (last) s.value = last;
   }).catch(function (e) { card('<span class=ng>つながりません（' + esc(e.message) + '）。電波を確かめて開き直してください</span>'); });
 
+  function links(r) {
+    var a = [];
+    if (r.url) a.push('<a href="' + esc(r.url) + '" target="_blank" rel="noopener">このファイルを開く</a>');
+    if (r.folderUrl) a.push('<a href="' + esc(r.folderUrl) + '" target="_blank" rel="noopener">入っているフォルダを開く</a>');
+    return a.length ? '<br>' + a.join('　') : '';
+  }
+
+  $('openroot').addEventListener('click', function () {
+    var w = window.open('about:blank', '_blank');
+    api('root').then(function (u) { if (w) w.location = u; else location.href = u; })
+      .catch(function (e) { if (w) w.close(); card('<span class=ng>開けませんでした（' + esc(e.message) + '）</span>'); });
+  });
+
   function sid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
   function upload(b64, kind, mime, ext, label) {
@@ -109,7 +124,7 @@
     function next() {
       if (i >= n) {
         return api('finish', { meta: { sid: id, n: n, book: bk, kind: kind, mime: mime, ext: ext, memo: memo } }).then(function (r) {
-          d.innerHTML = '<div class=ok>' + label + 'を保存しました</div>' + esc(r.folder + '/' + r.name) + '<br>' + Math.round(r.size / 1024) + ' KB';
+          d.innerHTML = '<div class=ok>' + label + 'を保存しました</div>' + esc(r.folder + '/' + r.name) + '<br>' + Math.round(r.size / 1024) + ' KB' + links(r);
         });
       }
       return api('chunk', { sid: id, idx: i, b64: b64.slice(i * CH, (i + 1) * CH) }).then(function () {
@@ -189,7 +204,7 @@
     var m = $('memo').value.trim(); if (!m) { card('<span class=ng>メモが空です</span>'); return; }
     var d = card('<span class=wait>メモ：送信中…</span>');
     api('memo', { book: book(), memo: m }).then(function (r) {
-      d.innerHTML = '<div class=ok>メモを保存しました</div>' + esc(r.folder + '/' + r.name); $('memo').value = '';
+      d.innerHTML = '<div class=ok>メモを保存しました</div>' + esc(r.folder + '/' + r.name) + links(r); $('memo').value = '';
     }).catch(function (e) { d.innerHTML = '<span class=ng>メモ：失敗しました（' + esc(e.message) + '）</span>'; });
   });
 
