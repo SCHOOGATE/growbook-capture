@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GrowBook Capture</title>
+<meta name="theme-color" content="#1f5f9e">
+<link rel="manifest" href="manifest.webmanifest?v=2">
+<link rel="icon" href="icon-192.png?v=2">
+<link rel="apple-touch-icon" href="icon-180.png?v=2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GrowBook Capture">
+<style>
+  :root{--bg:#f6f7f9;--fg:#222;--card:#fff;--line:#ccc;--sub:#555;--blue:#1f5f9e;--red:#c0392b;--red2:#7f1d1d;--ok:#1f7a4d}
+  body{font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;margin:0;padding:16px;background:var(--bg);color:var(--fg);max-width:560px;margin:0 auto}
+  h1{font-size:20px;margin:4px 0 12px}
+  label.t{display:block;font-size:14px;color:var(--sub);margin:14px 0 4px}
+  select,input[type=text],textarea{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#222}
+  textarea{height:80px}
+  .btn{display:block;width:100%;box-sizing:border-box;padding:22px 0;font-size:20px;font-weight:bold;border:0;border-radius:16px;background:var(--blue);color:#fff;text-align:center;margin-top:12px;font-family:inherit;cursor:pointer}
+  .rec{background:var(--red)}.rec.on{background:var(--red2)}
+  .sub{background:#fff;color:var(--blue);border:2px solid var(--blue);padding:14px 0;font-size:16px}
+  .card{background:var(--card);border-radius:12px;padding:12px;margin-top:12px;font-size:15px;line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.08);word-break:break-all}
+  .ok{color:var(--ok);font-weight:bold}.ng{color:var(--red);font-weight:bold}.wait{color:#888}
+  a{color:var(--blue)}
+  .hint{font-size:13px;color:#666;margin:6px 4px 0;line-height:1.5}
+  #timer{font-size:28px;text-align:center;margin-top:8px;font-variant-numeric:tabular-nums;min-height:1em}
+  #login,#app,#notready{display:none}
+  input[type=file]{display:none}
+</style>
+</head>
+<body>
+<h1>本の材料を送る</h1>
+
+<div id="notready" class="card"><span class="ng">準備中です。</span><br>使えるようになったらお知らせします。</div>
+
+<div id="login">
+  <div class="card">はじめに、Google にログインして「許可」を押してください。<br>
+  送った写真や声は<b>あなた自身の Google ドライブ</b>の「GrowBook Capture」フォルダに入ります。このアプリが見られるのは、このアプリで送ったものだけです。</div>
+  <button class="btn" id="loginbtn" type="button">Google でログイン</button>
+  <div id="loginerr" class="card ng" style="display:none"></div>
+</div>
+
+<div id="app">
+  <label class="t" for="book">どの本の材料ですか</label>
+  <select id="book"><option>未分類</option></select>
+  <button class="btn sub" id="newbtn" type="button" style="padding:12px 0;font-size:16px;margin-top:8px">＋ 新しい本を作る</button>
+  <div id="newform" style="display:none;margin-top:8px">
+    <input id="newbook" type="text" placeholder="本の名前（例：写真集_家族の一年）" maxlength="60">
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn" id="newok" type="button" style="margin-top:0;padding:14px 0;font-size:16px">作る</button>
+      <button class="btn sub" id="newcancel" type="button" style="margin-top:0;padding:14px 0;font-size:16px">やめる</button>
+    </div>
+  </div>
+  <div id="dest" class="card" style="margin-top:10px">送り先：<b id="destname">未分類</b></div>
+
+  <label class="t" for="memo">ひとことメモ（任意）</label>
+  <textarea id="memo" placeholder="いつ・どこで・何の話か など"></textarea>
+
+  <button class="btn rec" id="recbtn" type="button">🎙 録音をはじめる</button>
+  <div id="timer"></div>
+
+  <label class="btn sub" for="afile">録音ファイルを選ぶ</label>
+  <input id="afile" type="file" accept="audio/*,.m4a,.mp3,.wav,.aac,.ogg,.webm">
+
+  <label class="btn" for="cam">📷 写真を撮る</label>
+  <input id="cam" type="file" accept="image/*" capture="environment">
+  <label class="btn sub" for="lib">写真から選ぶ（複数可）</label>
+  <input id="lib" type="file" accept="image/*" multiple>
+
+  <button class="btn sub" id="memobtn" type="button">メモだけ送る</button>
+  <button class="btn sub" id="openroot" type="button">📂 保存先を開く（Googleドライブ）</button>
+  <p class="hint">送り先は、あなた自身の Google ドライブ「GrowBook Capture」フォルダだけです。</p>
+  <div id="list"></div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+(function () {
+  'use strict';
+  var VERSION = 'capture-web v1.0';
+  // ★ Google Cloud（スクーゲート）で作る「ウェブアプリ」の OAuth クライアントID。空のあいだは「準備中」と出す
+  var CLIENT_ID = '294607593791-suqpm7o6dv6ad320eju38trd4aqc2btj.apps.googleusercontent.com';
+  var SCOPE = 'https://www.googleapis.com/auth/drive.file';   // このアプリで作ったファイルだけ触れる
+  var ROOT_NAME = 'GrowBook Capture';
+  var DEFAULT_BOOK = '未分類';
+  var FOLDER = 'application/vnd.google-apps.folder';
+  var DRIVE = 'https://www.googleapis.com/drive/v3/files';
+  var UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
+
+  function $(i) { return document.getElementById(i); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function card(msg) { var d = document.createElement('div'); d.className = 'card'; d.innerHTML = msg; var L = $('list'); L.insertBefore(d, L.firstChild); return d; }
+  function show(id) { ['notready', 'login', 'app'].forEach(function (x) { $(x).style.display = x === id ? 'block' : 'none'; }); }
+
+  if (!CLIENT_ID) { show('notready'); return; }
+
+  // ---------- ログイン（Google のトークン。1時間で切れるので、切れたら取り直す） ----------
+  var token = null, tokenExp = 0, tokenClient = null, waiting = [];
+  try { var sv = JSON.parse(sessionStorage.getItem('gb_tok') || 'null'); if (sv && sv.exp > Date.now() + 60000) { token = sv.t; tokenExp = sv.exp; } } catch (e) {}
+
+  function initClient() {
+    if (tokenClient || !(window.google && google.accounts && google.accounts.oauth2)) return !!tokenClient;
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID, scope: SCOPE,
+      callback: function (r) {
+        var w = waiting; waiting = [];
+        if (r && r.access_token) {
+          token = r.access_token; tokenExp = Date.now() + (Number(r.expires_in) || 3600) * 1000;
+          try { sessionStorage.setItem('gb_tok', JSON.stringify({ t: token, exp: tokenExp })); } catch (e) {}
+          store('gb_signed', '1');
+          w.forEach(function (p) { p.ok(token); });
+        } else {
+          w.forEach(function (p) { p.ng(new Error((r && r.error) || 'ログインできませんでした')); });
+        }
+      },
+      error_callback: function (e) {
+        var w = waiting; waiting = [];
+        w.forEach(function (p) { p.ng(new Error(e && e.type === 'popup_closed' ? 'ログインの画面が閉じられました' : 'ログインの画面を開けませんでした')); });
+      }
+    });
+    return true;
+  }
+  function getToken(interactive) {
+    if (token && tokenExp > Date.now() + 60000) return Promise.resolve(token);
+    if (!interactive) {   // ログインの画面は、押したときにしか開けない（自動で開くとブラウザに止められる）
+      show('login');
+      return Promise.reject(new Error('ログインの期限が切れました。「Google でログイン」を押してから、もう一度送ってください'));
+    }
+    if (!initClient()) return Promise.reject(new Error('Google の読み込み中です。少し待って、もう一度押してください'));
+    return new Promise(function (ok, ng) {
+      waiting.push({ ok: ok, ng: ng });
+      if (waiting.length === 1) tokenClient.requestAccessToken({ prompt: store('gb_signed') === '1' ? '' : 'consent' });
+    });
+  }
+
+  function gfetch(url, opt, retry) {
+    opt = opt || {};
+    return getToken(false).then(function (t) {
+      opt.headers = opt.headers || {};
+      opt.headers.Authorization = 'Bearer ' + t;
+      return fetch(url, opt);
+    }).then(function (r) {
+      if (r.status === 401 && !retry) { token = null; return gfetch(url, opt, true); }
+      if (!r.ok) return r.text().then(function (x) { throw new Error('ドライブ ' + r.status + ' ' + x.slice(0, 120)); });
+      return r;
+    });
+  }
+  function gjson(url, opt) { return gfetch(url, opt).then(function (r) { return r.json(); }); }
+
+  // ---------- フォルダ（同時に送っても同じフォルダが重ならないよう、作るのは1つずつ順番に） ----------
+  var queue = Promise.resolve(), fcache = {};
+  try { fcache = JSON.parse(store('gb_fid') || '{}'); } catch (e) { fcache = {}; }
+  function q(s) { return "'" + String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'"; }
+  function findFolder(parent, name) {
+    var qs = 'mimeType=' + q(FOLDER) + ' and name=' + q(name) + ' and trashed=false and ' + (parent ? q(parent) + ' in parents' : "'root' in parents");
+    return gjson(DRIVE + '?fields=files(id,name,webViewLink,createdTime)&orderBy=createdTime&q=' + encodeURIComponent(qs))
+      .then(function (j) { return j.files && j.files[0]; });
+  }
+  function makeFolder(parent, name, kind) {
+    var meta = { name: name, mimeType: FOLDER, appProperties: { gbc: '1', type: kind } };
+    if (parent) meta.parents = [parent];
+    return gjson(DRIVE + '?fields=id,name,webViewLink', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(meta) });
+  }
+  function folder(parent, name, kind) {
+    var key = (parent || 'root') + '/' + name;
+    var p = queue.then(function () {
+      if (fcache[key]) return fcache[key];
+      return findFolder(parent, name).then(function (f) { return f || makeFolder(parent, name, kind); }).then(function (f) {
+        fcache[key] = { id: f.id, url: f.webViewLink }; store('gb_fid', JSON.stringify(fcache)); return fcache[key];
+      });
+    });
+    queue = p.catch(function () {});
+    return p;
+  }
+  function forget() { fcache = {}; store('gb_fid', '{}'); }
+  function root() { return folder(null, ROOT_NAME, 'root'); }
+
+  // ---------- 本 ----------
+  function cleanName(s) { return String(s || '').replace(/[\\\/:*?"<>|\r\n\t]/g, '').trim().slice(0, 60); }
+  function book() { return $('book').value; }
+  function showDest() { $('destname').textContent = book(); store('gb_book', book()); }
+  function fillBooks(bs, pick) {
+    var s = $('book'); s.innerHTML = '';
+    [DEFAULT_BOOK].concat(bs.filter(function (b) { return b !== DEFAULT_BOOK; })).forEach(function (b) {
+      var o = document.createElement('option'); o.textContent = b; s.appendChild(o);
+    });
+    if (pick && (pick === DEFAULT_BOOK || bs.indexOf(pick) >= 0)) s.value = pick;
+    showDest();
+  }
+  function listBooks() {
+    return root().then(function (r) {
+      var qs = 'mimeType=' + q(FOLDER) + ' and ' + q(r.id) + ' in parents and trashed=false';
+      return gjson(DRIVE + '?pageSize=200&fields=files(name)&q=' + encodeURIComponent(qs));
+    }).then(function (j) {
+      var seen = {}, out = [];
+      (j.files || []).forEach(function (f) { if (!seen[f.name]) { seen[f.name] = 1; out.push(f.name); } });
+      return out.sort();
+    });
+  }
+
+  // ---------- 日時（日本時間） ----------
+  function jst() {
+    var p = {}, f = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    f.formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+    return { day: p.year + '-' + p.month + '-' + p.day, hms: (p.hour === '24' ? '00' : p.hour) + p.minute + p.second };
+  }
+  function sid4() { return Math.random().toString(36).slice(2, 6); }
+
+  // ---------- 送る（ドライブへ直接。大きいファイルは「再開できる送り方」で） ----------
+  function put(blob, name, mime, bk, kind, memo) {
+    var t = jst(), bname = cleanName(bk) || DEFAULT_BOOK, dayF;
+    return root().then(function (r) { return folder(r.id, bname, 'book'); })
+      .then(function (b) { return folder(b.id, t.day, 'day'); })
+      .then(function (d) {
+        dayF = d;
+        var meta = { name: name.replace('{hms}', t.hms), parents: [d.id], mimeType: mime,
+          appProperties: { gbc: '1', type: 'item', book: bname.slice(0, 40), day: t.day, kind: kind } };
+        if (memo) meta.description = String(memo).slice(0, 2000);
+        return gfetch(UPLOAD + '?uploadType=resumable&fields=id,name,size,webViewLink', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json; charset=UTF-8', 'X-Upload-Content-Type': mime, 'X-Upload-Content-Length': String(blob.size) },
+          body: JSON.stringify(meta)
+        });
+      })
+      .then(function (r) {
+        var loc = r.headers.get('Location');
+        if (!loc) throw new Error('送り先のアドレスを受け取れませんでした');
+        return fetch(loc, { method: 'PUT', headers: { 'Content-Type': mime }, body: blob });
+      })
+      .then(function (r) {
+        if (!r.ok) return r.text().then(function (x) { throw new Error('送信 ' + r.status + ' ' + x.slice(0, 120)); });
+        return r.json();
+      })
+      .then(function (f) { return { name: f.name, size: Number(f.size) || blob.size, url: f.webViewLink, folder: ROOT_NAME + '/' + bname + '/' + t.day, folderUrl: dayF.url }; })
+      .catch(function (e) {
+        if (/ 404 /.test(e.message)) forget();   // フォルダがごみ箱に入れられたなど→次は作り直す
+        throw e;
+      });
+  }
+  function links(r) {
+    var a = [];
+    if (r.url) a.push('<a href="' + esc(r.url) + '" target="_blank" rel="noopener">このファイルを開く</a>');
+    if (r.folderUrl) a.push('<a href="' + esc(r.folderUrl) + '" target="_blank" rel="noopener">入っているフォルダを開く</a>');
+    return a.length ? '<br>' + a.join('　') : '';
+  }
+  function send(blob, kind, mime, ext, label) {
+    var d = card('<span class=wait>' + label + '：送信中…</span>');
+    put(blob, '{hms}_' + kind + '_' + sid4() + '.' + ext, mime, book(), kind, $('memo').value).then(function (r) {
+      d.innerHTML = '<div class=ok>' + label + 'を保存しました</div>' + esc(r.folder + '/' + r.name) + '<br>' + Math.round(r.size / 1024) + ' KB' + links(r);
+    }).catch(function (e) { d.innerHTML = '<span class=ng>' + label + '：失敗しました（' + esc(e.message) + '）</span>'; });
+  }
+
+  function extOf(name, mime) {
+    var m = /\.([a-z0-9]{2,5})$/i.exec(name || ''); if (m) return m[1].toLowerCase();
+    if (/mp4|m4a|aac/.test(mime)) return 'm4a'; if (/webm/.test(mime)) return 'webm'; if (/ogg/.test(mime)) return 'ogg';
+    if (/wav/.test(mime)) return 'wav'; if (/mpeg|mp3/.test(mime)) return 'mp3'; return 'bin';
+  }
+  function shrink(file, cb) {
+    var url = URL.createObjectURL(file), im = new Image();
+    im.onload = function () {
+      var max = 2400, w = im.width, h = im.height, s = Math.min(1, max / Math.max(w, h));
+      var c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(function (b) { cb(b || file); }, 'image/jpeg', 0.88);
+    };
+    im.onerror = function () { URL.revokeObjectURL(url); cb(file); };
+    im.src = url;
+  }
+
+  // ---------- 画面のつなぎ込み ----------
+  function start() {
+    show('app');
+    listBooks().then(function (bs) { fillBooks(bs, store('gb_book')); })
+      .catch(function (e) { card('<span class=ng>ドライブにつながりません（' + esc(e.message) + '）。電波を確かめて開き直してください</span>'); });
+  }
+  $('loginbtn').addEventListener('click', function () {
+    getToken(true).then(start).catch(function (e) { show('login'); var d = $('loginerr'); d.style.display = 'block'; d.textContent = e.message; });
+  });
+  $('book').addEventListener('change', showDest);
+  $('newbtn').addEventListener('click', function () { $('newform').style.display = 'block'; $('newbtn').style.display = 'none'; $('newbook').focus(); });
+  function closeNew() { $('newform').style.display = 'none'; $('newbtn').style.display = 'block'; $('newbook').value = ''; }
+  $('newcancel').addEventListener('click', closeNew);
+  $('newok').addEventListener('click', function () {
+    var n = cleanName($('newbook').value);
+    if (!n) { $('newbook').focus(); return; }
+    var b = $('newok'); b.disabled = true; b.textContent = '作っています…';
+    root().then(function (r) { return folder(r.id, n, 'book'); }).then(listBooks).then(function (bs) {
+      fillBooks(bs, n); closeNew();
+      card('<span class=ok>「' + esc(n) + '」を作りました。</span>これから送るものはこの本に入ります');
+    }).catch(function (e) { card('<span class=ng>作れませんでした（' + esc(e.message) + '）</span>'); })
+      .then(function () { b.disabled = false; b.textContent = '作る'; });
+  });
+  $('openroot').addEventListener('click', function () {
+    var w = window.open('about:blank', '_blank');
+    root().then(function (r) { if (w) w.location = r.url; else location.href = r.url; })
+      .catch(function (e) { if (w) w.close(); card('<span class=ng>開けませんでした（' + esc(e.message) + '）</span>'); });
+  });
+  function pickImg(ev) {
+    var fs = ev.target.files;
+    for (var k = 0; k < fs.length; k++) shrink(fs[k], function (b) { send(b, '写真', 'image/jpeg', 'jpg', '写真'); });
+    ev.target.value = '';
+  }
+  $('cam').addEventListener('change', pickImg);
+  $('lib').addEventListener('change', pickImg);
+  $('afile').addEventListener('change', function (ev) {
+    var f = ev.target.files[0]; if (!f) return; var mime = f.type || 'audio/mp4';
+    send(f, '音声', mime, extOf(f.name, mime), '音声'); ev.target.value = '';
+  });
+  $('memobtn').addEventListener('click', function () {
+    var m = $('memo').value.trim(); if (!m) { card('<span class=ng>メモが空です</span>'); return; }
+    var d = card('<span class=wait>メモ：送信中…</span>');
+    put(new Blob([m], { type: 'text/plain' }), '{hms}_メモ.txt', 'text/plain', book(), 'メモ', '').then(function (r) {
+      d.innerHTML = '<div class=ok>メモを保存しました</div>' + esc(r.folder + '/' + r.name) + links(r); $('memo').value = '';
+    }).catch(function (e) { d.innerHTML = '<span class=ng>メモ：失敗しました（' + esc(e.message) + '）</span>'; });
+  });
+
+  // 画面の中で録音
+  var rec = null, chunks = [], t0 = 0, tick = null;
+  function pickMime() {
+    var c = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'];
+    for (var k = 0; k < c.length; k++) if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c[k])) return c[k];
+    return '';
+  }
+  $('recbtn').addEventListener('click', function () {
+    var b = $('recbtn');
+    if (rec && rec.state === 'recording') { rec.stop(); return; }
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
+      card('<span class=ng>この画面では録音できません。Chrome（iPhone は Safari）で開き直すか、「録音ファイルを選ぶ」を使ってください</span>'); return;
+    }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (st) {
+      var mt = pickMime(); chunks = [];
+      rec = mt ? new MediaRecorder(st, { mimeType: mt }) : new MediaRecorder(st);
+      rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop = function () {
+        clearInterval(tick); $('timer').textContent = ''; b.textContent = '🎙 録音をはじめる'; b.className = 'btn rec';
+        st.getTracks().forEach(function (x) { x.stop(); });
+        var mime = (rec.mimeType || mt || 'audio/mp4').split(';')[0];
+        var blob = new Blob(chunks, { type: mime });
+        if (!blob.size) { card('<span class=ng>録音が空でした。もう一度お試しください</span>'); return; }
+        send(blob, '音声', mime, extOf('', mime), '録音');
+      };
+      rec.start(1000); t0 = Date.now(); b.textContent = '⏹ 録音をとめて送る'; b.className = 'btn rec on';
+      tick = setInterval(function () { var s = Math.floor((Date.now() - t0) / 1000); $('timer').textContent = Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }, 500);
+    }).catch(function (e) {
+      card('<span class=ng>マイクが使えません（' + esc(e.name) + '）。アプリの中で開いている場合は、右上の「︙」から「Chromeで開く」（iPhone は Safari）を選んでください</span>');
+    });
+  });
+
+  // 起動：ログインが生きていればそのまま。切れていれば「Google でログイン」を1回押す（2回目からは許可の画面は出ない）
+  if (token) start(); else show('login');
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  window.GB_VERSION = VERSION;
+})();
+</script>
+</body>
+</html>
