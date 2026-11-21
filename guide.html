@@ -3,82 +3,82 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GrowBook Capture 導入</title>
-<meta name="description" content="スマホで撮る・話すだけで、本の材料が自分のGoogleドライブにそろう。GrowBook Capture の魅力と導入手順。">
+<title>GrowBook Capture 紹介</title>
+<meta name="description" content="スマホで撮る・話すだけで、本の材料が自分のGoogleドライブにそろい、GrowBookForgeで本や写真集になる。GrowBook Capture のご紹介。">
 <link rel="icon" href="icon-192.png?v=2">
 <style>
 :root{
   --bg:#f5f7fb; --card:#fff; --ink:#1d2433; --sub:#5a6478; --line:#e3e8f0;
-  --blue:#1f5f9e; --blue2:#2a6eb4; --soft:#e8f0fa; --ok:#1f7a4d; --warn:#b4541a; --code:#0f1726;
+  --blue:#1f5f9e; --blue2:#2a6eb4; --soft:#e8f0fa; --ok:#1f7a4d; --warn:#b4541a;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0f141c; --card:#171e29; --ink:#e7ecf3; --sub:#9aa6b8; --line:#273141;
-    --blue:#6aa6e8; --blue2:#86b8ee; --soft:#1c2a3c; --ok:#5fc28f; --warn:#f0a06a; --code:#0a0f17;
+    --blue:#6aa6e8; --blue2:#86b8ee; --soft:#1c2a3c; --ok:#5fc28f; --warn:#f0a06a;
   }
 }
 :root[data-theme="dark"]{
   --bg:#0f141c; --card:#171e29; --ink:#e7ecf3; --sub:#9aa6b8; --line:#273141;
-  --blue:#6aa6e8; --blue2:#86b8ee; --soft:#1c2a3c; --ok:#5fc28f; --warn:#f0a06a; --code:#0a0f17;
+  --blue:#6aa6e8; --blue2:#86b8ee; --soft:#1c2a3c; --ok:#5fc28f; --warn:#f0a06a;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif;line-height:1.75;font-size:16px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif;line-height:1.8;font-size:16px}
 .wrap{max-width:860px;margin:0 auto;padding:0 16px 64px}
-header.hero{background:linear-gradient(160deg,#2a6eb4,#123c70);color:#fff;padding:48px 16px 40px}
+header.hero{background:linear-gradient(160deg,#2a6eb4,#123c70);color:#fff;padding:52px 16px 44px}
 header.hero .in{max-width:860px;margin:0 auto;display:flex;gap:20px;align-items:center}
-header.hero img{width:84px;height:84px;border-radius:22px;flex:none;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-header.hero h1{margin:0 0 6px;font-size:28px;line-height:1.35}
+header.hero img{width:88px;height:88px;border-radius:22px;flex:none;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+header.hero h1{margin:0 0 8px;font-size:29px;line-height:1.4}
 header.hero p{margin:0;opacity:.92}
-h2{font-size:22px;margin:44px 0 14px;padding-left:12px;border-left:5px solid var(--blue)}
-h3{font-size:18px;margin:0 0 6px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px}
+h2{font-size:22px;margin:46px 0 14px;padding-left:12px;border-left:5px solid var(--blue)}
+h3{font-size:18px;margin:0 0 4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
 .feat .ic{font-size:26px}
 .feat p{margin:4px 0 0;color:var(--sub);font-size:15px}
-.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:6px 0}
-.flow .box{background:var(--soft);border-radius:12px;padding:10px 14px;font-weight:bold;text-align:center;font-size:15px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+.flow .box{background:var(--soft);border-radius:12px;padding:12px 14px;font-weight:bold;text-align:center;font-size:15px;line-height:1.5}
 .flow .ar{color:var(--sub);font-size:20px}
 .badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--soft);color:var(--blue);margin-left:6px;vertical-align:middle;font-weight:bold}
 .badge.dev{color:var(--warn)}
-ol.steps{list-style:none;padding:0;margin:0;counter-reset:s}
-ol.steps>li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 16px 64px;position:relative;margin-bottom:12px}
-ol.steps>li::before{content:counter(s);position:absolute;left:16px;top:16px;width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;font-weight:bold;display:flex;align-items:center;justify-content:center}
-ol.steps ul{margin:6px 0 0;padding-left:20px}
-.path{font-weight:bold;color:var(--blue2)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two .card h3{display:flex;align-items:center;gap:8px}
+.num{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font-weight:bold;align-items:center;justify-content:center;font-size:15px;flex:none}
+.after{margin-top:12px;background:var(--soft);border-radius:14px;padding:16px 18px;font-weight:bold;text-align:center;line-height:1.7}
+.demo ol{margin:6px 0 0;padding-left:22px}
 .note{font-size:14px;color:var(--sub)}
-.warn{border-left:4px solid var(--warn);background:var(--card);padding:10px 14px;border-radius:8px;font-size:15px;margin-top:10px}
-button.b{font:inherit;font-weight:bold;border:0;border-radius:12px;padding:12px 18px;background:var(--blue);color:#fff;cursor:pointer}
-button.b.sub{background:transparent;color:var(--blue);border:2px solid var(--blue)}
-pre{background:var(--code);color:#cfe3ff;border-radius:10px;padding:12px;max-height:180px;overflow:auto;font-size:12px;line-height:1.5;margin:10px 0 0}
-input[type=text]{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
-label.f{display:block;font-weight:bold;margin:12px 0 4px;font-size:15px}
-#qrbox{display:none;margin-top:16px;text-align:center}
-#qr{display:inline-block;background:#fff;padding:14px;border-radius:12px}
-#msg{margin-top:10px;font-weight:bold}
-.ok{color:var(--ok)} .ng{color:var(--warn)}
+.big{font-size:18px;font-weight:bold}
 footer{margin-top:48px;color:var(--sub);font-size:13px;text-align:center}
-@media (max-width:560px){header.hero h1{font-size:23px} header.hero img{width:64px;height:64px} ol.steps>li{padding-left:56px}}
+@media (max-width:620px){
+  header.hero h1{font-size:23px} header.hero img{width:64px;height:64px}
+  .two{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <header class="hero"><div class="in">
   <img src="icon-512.png?v=2" alt="">
   <div>
-    <h1>撮って、話すだけ。<br>本の材料が、自分のドライブにそろう。</h1>
-    <p>GrowBook Capture ― スマホから写真と声を送ると、本ごと・日付ごとに自動で整理されるアプリ</p>
+    <h1>撮って、話すだけ。<br>あなたの毎日が、本の材料になる。</h1>
+    <p>GrowBook Capture ― スマホから送った写真と声が、自分のドライブで整理され、GrowBookForge で本や写真集になる</p>
   </div>
 </div></header>
 
 <div class="wrap">
 
+<h2>本づくりで、いちばん大変なのは「材料集め」</h2>
+<div class="card">
+  <p style="margin:0">写真はスマホのアルバムに埋もれ、思いついた話はその場で消えていく。いざ本を作ろうとしたとき、材料を探して並べ直すところで手が止まってしまいます。</p>
+  <p class="big" style="margin:10px 0 0">GrowBook Capture は、その「材料集め」を、毎日のスマホの操作だけで終わらせるためのアプリです。</p>
+</div>
+
 <h2>こんなことができます</h2>
 <div class="grid">
-  <div class="card feat"><div class="ic">📷</div><h3>思いついたその場で送れる</h3><p>写真を撮る・アルバムから何枚も選ぶ・声で話す。スマホのボタンひとつで送れます。</p></div>
-  <div class="card feat"><div class="ic">🔒</div><h3>送り先は自分のドライブだけ</h3><p>材料はあなた自身の Google ドライブ「GrowBookForge材料」に入ります。合言葉を知っている自分だけが送れます。</p></div>
-  <div class="card feat"><div class="ic">🗂</div><h3>本ごと・日付ごとに自動で整理</h3><p>アプリから「＋ 新しい本を作る」でフォルダを作り、送ったものは「本／日付」に分かれて入ります。</p></div>
-  <div class="card feat"><div class="ic">🎙</div><h3>声は自動で文字に<span class="badge">任意</span></h3><p>録った声は10分ごとに書き起こされ、日付ごとの「材料メモ」にまとまります（Gemini の API キーが必要・少額の費用）。</p></div>
-  <div class="card feat"><div class="ic">💻</div><h3>パソコンへ取り込んで本づくりへ</h3><p>材料は GrowBookForge に取り込んで原稿や本の材料にします。</p></div>
-  <div class="card feat"><div class="ic">📖</div><h3>写真集づくり<span class="badge dev">開発中</span></h3><p>「左に写真・右に日記」などの見開きの型を選ぶか、チャットで相談しながら写真集にする仕組みを作っています。</p></div>
+  <div class="card feat"><div class="ic">📷</div><h3>思いついたその場で送れる</h3><p>写真を撮る・アルバムから何枚も選ぶ・声で話す。ボタンひとつで送れます。</p></div>
+  <div class="card feat"><div class="ic">🔒</div><h3>保存先は自分のドライブだけ</h3><p>送った写真や声は、あなた自身の Google ドライブに入ります。ほかの人には見えません。</p></div>
+  <div class="card feat"><div class="ic">🗂</div><h3>本ごと・日付ごとに自動で整理</h3><p>アプリで「＋ 新しい本を作る」。送ったものは「本／日付」に分かれて入ります。</p></div>
+  <div class="card feat"><div class="ic">🎙</div><h3>話した声が文字に</h3><p>録った声は文字に起こされ、日付ごとの「材料メモ」にまとまります。原稿や日記の下書きに使えます。</p></div>
+  <div class="card feat"><div class="ic">💻</div><h3>GrowBookForge に届く</h3><p>集めた材料は GrowBookForge に取り込んで、そのまま本づくりに使えます（自動で取り込む形は準備中）。</p></div>
+  <div class="card feat"><div class="ic">📖</div><h3>写真集にできる<span class="badge dev">開発中</span></h3><p>「左に写真・右に日記」などの見開きの型を選ぶか、チャットで相談しながら写真集に仕上げます。</p></div>
 </div>
 
 <h2>しくみの流れ</h2>
@@ -86,149 +86,32 @@ footer{margin-top:48px;color:var(--sub);font-size:13px;text-align:center}
   <div class="flow">
     <div class="box">📱 スマホで<br>撮る・話す</div><div class="ar">→</div>
     <div class="box">☁️ 自分の<br>Googleドライブ</div><div class="ar">→</div>
-    <div class="box">📝 声は自動で<br>文字に（任意）</div><div class="ar">→</div>
-    <div class="box">💻 GrowBookForge<br>で本づくり</div>
+    <div class="box">💻 GrowBookForge<br>に自動で取り込み</div><div class="ar">→</div>
+    <div class="box">📖 本・写真集<br>の材料に</div>
   </div>
-  <p class="note" style="text-align:center;margin:8px 0 0">今日はこの中の「スマホのアプリを自分用に入れる」ところまで進めます（パソコンとスマホで約15分）。</p>
 </div>
 
-<h2>導入の手順（今日やること）</h2>
-<p class="note">用意するもの：パソコン（Chrome）／スマホ／自分の Google アカウント。パソコンとスマホは同じ Google アカウントでなくてもかまいません。</p>
-
-<ol class="steps">
-  <li><h3>パソコンで Apps Script を開く</h3>
-    パソコンの Chrome で自分の Google アカウントにログインした状態で、<a href="https://script.new" target="_blank" rel="noopener"><b>script.new</b></a> を開きます。新しい「無題のプロジェクト」ができます。
-    <ul><li>左上の「無題のプロジェクト」を押して、名前を <b>GrowBook Capture</b> にします</li></ul>
-  </li>
-
-  <li><h3>アプリの中身（コード）を貼る</h3>
-    下の「コードをコピー」を押します → エディタの中身を全部消して（<b>Ctrl+A</b> → <b>Delete</b>）、貼り付けます（<b>Ctrl+V</b>）→ 保存（<b>Ctrl+S</b>）。
-    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-      <button class="b" id="copycode" type="button">コードをコピー</button>
-      <span id="copymsg" class="note" style="align-self:center"></span>
-    </div>
-    <pre id="code">読み込み中…</pre>
-  </li>
-
-  <li><h3>「setup」を実行して、合言葉をもらう</h3>
-    エディタの上にある関数の選択（「doGet」などと出ている欄）で <b>setup</b> を選び、<span class="path">▷ 実行</span> を押します。
-    <ul>
-      <li>「承認が必要です」→ <span class="path">権限を確認</span> → 自分のアカウントを選ぶ</li>
-      <li>「このアプリは Google で確認されていません」→ <span class="path">詳細</span>（Advanced）→ <span class="path">GrowBook Capture（安全ではないページ）に移動</span>（Go to … (unsafe)）</li>
-      <li>許可の画面では <b>「すべて選択」にチェック</b> → <span class="path">続行</span>（Allow）</li>
-      <li>下の「実行ログ」に <b>合言葉: ……</b> と出ます。英数字の部分をコピーしておきます</li>
-    </ul>
-    <div class="warn">「確認されていません」は、自分で作ったアプリなら必ず出る表示です。作ったのも使うのも自分自身なので、そのまま進めて大丈夫です。</div>
-  </li>
-
-  <li><h3>ウェブアプリとして公開する</h3>
-    右上の <span class="path">デプロイ</span> → <span class="path">新しいデプロイ</span> → 左の ⚙ で <span class="path">ウェブアプリ</span> を選びます。
-    <ul>
-      <li>次のユーザーとして実行：<b>自分</b></li>
-      <li>アクセスできるユーザー：<b>全員</b></li>
-      <li><span class="path">デプロイ</span> を押す → 出てきた <b>「ウェブアプリ」のURL</b>（https://script.google.com/macros/s/…/exec）をコピー</li>
-    </ul>
-    <div class="warn">「全員」にしないとスマホから送れません。送るには合言葉が要るので、URLを知っていても他の人は送れません。</div>
-  </li>
-
-  <li><h3>自分専用リンクを作る（このページで）</h3>
-    コピーした2つをここに貼って、ボタンを押します。<b>このパソコンの中だけで作る</b>ので、どこにも送られません。
-    <label class="f" for="inurl">ウェブアプリのURL</label>
-    <input id="inurl" type="text" placeholder="https://script.google.com/macros/s/……/exec" autocomplete="off">
-    <label class="f" for="intok">合言葉</label>
-    <input id="intok" type="text" placeholder="実行ログの「合言葉:」の後ろの英数字" autocomplete="off">
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-      <button class="b" id="make" type="button">自分専用リンクを作る</button>
-      <button class="b sub" id="clear" type="button">消す</button>
-    </div>
-    <div id="msg"></div>
-    <div id="qrbox">
-      <div id="qr"></div>
-      <p class="note">スマホのカメラでこのQRコードを読んでください</p>
-      <button class="b sub" id="copylink" type="button">リンクをコピー（スマホに自分で送る場合）</button>
-    </div>
-  </li>
-
-  <li><h3>スマホで開いて、ホーム画面に置く</h3>
-    QRコードから開いたら、<b>Android は Chrome、iPhone は Safari</b> で開きます（LINE などの中で開いた場合は「ブラウザで開く」）。
-    <ul>
-      <li>Android：右上の「︙」→ <span class="path">ホーム画面に追加</span></li>
-      <li>iPhone：下の共有ボタン → <span class="path">ホーム画面に追加</span></li>
-      <li>青いアイコンの <b>GrowBook Capture</b> がホーム画面に並びます。一度開けば、スマホが設定を覚えます</li>
-    </ul>
-  </li>
-
-  <li><h3>本を作って、1枚送ってみる</h3>
-    アプリで <span class="path">＋ 新しい本を作る</span> → 本の名前を入れて <span class="path">作る</span> → 「送り先」がその本になっているのを確かめて、<span class="path">📷 写真を撮る</span> か <span class="path">写真から選ぶ</span>。
-    <ul><li>「保存しました」と出たら完了です。<span class="path">📂 保存先を開く</span> で自分のドライブに入ったのを確かめられます</li></ul>
-  </li>
-</ol>
-
-<h2>声を文字にする（任意・あとからでOK）</h2>
-<div class="card">
-  <ol style="margin:0;padding-left:20px">
-    <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> で API キーを作る（無料枠は入力が改善に使われることがあるため、課金の設定をおすすめします）</li>
-    <li>Apps Script の左の ⚙ <span class="path">プロジェクトの設定</span> → 一番下の <span class="path">スクリプト プロパティを追加</span> → プロパティ <b>GEMINI_API_KEY</b>／値にキー → 保存</li>
-    <li>関数で <b>setupTrigger</b> を選んで <span class="path">▷ 実行</span>（許可は「すべて選択」）。以後10分ごとに、新しい声が文字になります</li>
+<h2>今日のデモ</h2>
+<div class="card demo">
+  <p style="margin:0">この場で、実際にスマホから送ってみます。</p>
+  <ol>
+    <li>アプリで「＋ 新しい本を作る」→ 本の名前を入れる</li>
+    <li>写真を何枚か選んで送る／声でひとこと話して送る</li>
+    <li>ドライブの「本の名前／今日の日付」に届いているのを確かめる</li>
+    <li>声が文字になった「材料メモ」を見てみる<span class="note">（文字起こしは10分ごとなので、少し前に送った分でお見せします）</span></li>
   </ol>
-  <p class="note" style="margin:8px 0 0">キーは人に見せない・チャットに貼らないでください。</p>
 </div>
 
-<h2>大事なこと</h2>
-<div class="card">
-  <ul style="margin:0;padding-left:20px">
-    <li><b>合言葉・自分専用リンク・QRコードは人に渡さない</b>（渡すと、その人もあなたのドライブに送れてしまいます）</li>
-    <li>材料はあなたのドライブにだけ入ります。消したいときはドライブから消せます</li>
-    <li>うまくいかないときは、出た画面（赤い字など）をそのまま見せてください</li>
-  </ul>
+<h2>みなさんが使えるようになるまで<span class="badge dev">準備中</span></h2>
+<p style="margin:0 0 12px">いまは一人ずつの設定が必要な作りのため、<b>最初の1回のログインだけで使える形</b>に作り直しています。準備ができたらお知らせします。</p>
+<div class="two">
+  <div class="card"><h3><span class="num">1</span>スマホでリンクを開く</h3><p style="margin:0">「Googleでログイン」→「許可」→ ホーム画面に追加。</p></div>
+  <div class="card"><h3><span class="num">2</span>GrowBookForge でつなぐ</h3><p style="margin:0">パソコンの GrowBookForge で「スマホとつなぐ」→ 同じアカウントでログイン。</p></div>
 </div>
+<div class="after">これだけで、あとは<br>「スマホで撮る・話す → GrowBookForge を開くと材料がそろっている」</div>
+<p class="note" style="margin:10px 0 0">※ ログインのしくみは Google の確認を受けてから公開します。お知らせの時期は確認の進み具合によります。</p>
 
-<footer>GrowBook Capture ／ 導入ページ 2026-11-21</footer>
+<footer>GrowBook Capture ／ ご紹介 2026-11-21</footer>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-(function () {
-  'use strict';
-  var BASE = 'https://schoogate.github.io/growbook-capture/';
-  function $(i) { return document.getElementById(i); }
-  var codeText = '';
-  fetch('dist/Code.gs?v=' + Date.now()).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-    .then(function (t) { codeText = t; $('code').textContent = t; })
-    .catch(function () { $('code').textContent = 'コードを読み込めませんでした。ページを開き直してください。'; });
-
-  function copy(text, done) {
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
-    } else { fallback(text); done(); }
-  }
-  function fallback(text) {
-    var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta);
-  }
-  $('copycode').addEventListener('click', function () {
-    if (!codeText) return;
-    copy(codeText, function () { $('copymsg').textContent = 'コピーしました（' + codeText.split('\n').length + '行）'; });
-  });
-
-  var link = '';
-  function say(cls, t) { var m = $('msg'); m.className = cls; m.textContent = t; }
-  $('make').addEventListener('click', function () {
-    var u = $('inurl').value.trim(), t = $('intok').value.trim().replace(/^合言葉[:：]\s*/, '');
-    var mu = u.match(/\/macros\/(?:a\/[^/]+\/)?s\/([A-Za-z0-9_-]{20,})\/(?:exec|dev)/);
-    if (!mu) { say('ng', 'ウェブアプリのURLの形が違います。「https://script.google.com/macros/s/…/exec」をそのまま貼ってください'); return; }
-    if (/\/dev$/.test(u.split('?')[0])) { say('ng', '「…/dev」ではなく、デプロイのときに出た「…/exec」のURLを貼ってください'); return; }
-    if (!/^[A-Za-z0-9]{16,}$/.test(t)) { say('ng', '合言葉の形が違います。実行ログの「合言葉:」の後ろの英数字だけを貼ってください'); return; }
-    link = BASE + '#u=' + encodeURIComponent(mu[1]) + '&t=' + encodeURIComponent(t);
-    var box = $('qr'); box.innerHTML = '';
-    if (window.QRCode) { new QRCode(box, { text: link, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M }); }
-    else { box.textContent = 'QRコードを作れませんでした。下の「リンクをコピー」を使ってください'; }
-    $('qrbox').style.display = 'block';
-    say('ok', '自分専用リンクができました。スマホで読んでください');
-  });
-  $('copylink').addEventListener('click', function () { if (link) copy(link, function () { say('ok', 'リンクをコピーしました。自分あてにだけ送ってください'); }); });
-  $('clear').addEventListener('click', function () { $('inurl').value = ''; $('intok').value = ''; $('qr').innerHTML = ''; $('qrbox').style.display = 'none'; link = ''; say('', ''); });
-})();
-</script>
 </body>
 </html>
