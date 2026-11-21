@@ -37,7 +37,15 @@
 <div id="app">
   <label class="t" for="book">どの本の材料ですか</label>
   <select id="book"><option>未分類</option></select>
-  <input id="newbook" type="text" placeholder="新しい本の名前（新しく作るときだけ）" style="margin-top:8px">
+  <button class="btn sub" id="newbtn" type="button" style="padding:12px 0;font-size:16px;margin-top:8px">＋ 新しい本を作る</button>
+  <div id="newform" style="display:none;margin-top:8px">
+    <input id="newbook" type="text" placeholder="本の名前（例：写真集_家族の一年）" maxlength="60">
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn" id="newok" type="button" style="margin-top:0;padding:14px 0;font-size:16px">作る</button>
+      <button class="btn sub" id="newcancel" type="button" style="margin-top:0;padding:14px 0;font-size:16px">やめる</button>
+    </div>
+  </div>
+  <div id="dest" class="card" style="margin-top:10px">送り先：<b id="destname">未分類</b></div>
 
   <label class="t" for="memo">ひとことメモ（任意）</label>
   <textarea id="memo" placeholder="いつ・どこで・何の話か など"></textarea>
@@ -62,7 +70,7 @@
 <script>
 (function () {
   'use strict';
-  var VERSION = 'capture-web v0.2.1';
+  var VERSION = 'capture-web v0.3';
   var CH = 2000000;           // base64 で約2MBずつ（4の倍数）
   var KEY = 'gb_cfg';
 
@@ -92,14 +100,34 @@
       .then(function (j) { if (!j.ok) throw new Error(j.error || '失敗'); return j.data; });
   }
 
-  function book() { var n = $('newbook').value.trim(); return n || $('book').value; }
+  function book() { return $('book').value; }
+  function showDest() { $('destname').textContent = book(); store('gb_book', book()); }
   function card(msg) { var d = document.createElement('div'); d.className = 'card'; d.innerHTML = msg; var L = $('list'); L.insertBefore(d, L.firstChild); return d; }
 
-  api('books').then(function (bs) {
-    var s = $('book');
-    bs.forEach(function (b) { if (b !== '未分類') { var o = document.createElement('option'); o.textContent = b; s.appendChild(o); } });
-    var last = store('gb_book'); if (last) s.value = last;
-  }).catch(function (e) { card('<span class=ng>つながりません（' + esc(e.message) + '）。電波を確かめて開き直してください</span>'); });
+  function fillBooks(bs, pick) {
+    var s = $('book'); s.innerHTML = '';
+    ['未分類'].concat(bs.filter(function (b) { return b !== '未分類'; })).forEach(function (b) {
+      var o = document.createElement('option'); o.textContent = b; s.appendChild(o);
+    });
+    if (pick && bs.indexOf(pick) >= 0) s.value = pick;
+    showDest();
+  }
+  api('books').then(function (bs) { fillBooks(bs, store('gb_book')); })
+    .catch(function (e) { card('<span class=ng>つながりません（' + esc(e.message) + '）。電波を確かめて開き直してください</span>'); });
+  $('book').addEventListener('change', showDest);
+  $('newbtn').addEventListener('click', function () { $('newform').style.display = 'block'; $('newbtn').style.display = 'none'; $('newbook').focus(); });
+  function closeNew() { $('newform').style.display = 'none'; $('newbtn').style.display = 'block'; $('newbook').value = ''; }
+  $('newcancel').addEventListener('click', closeNew);
+  $('newok').addEventListener('click', function () {
+    var n = $('newbook').value.trim();
+    if (!n) { $('newbook').focus(); return; }
+    var b = $('newok'); b.disabled = true; b.textContent = '作っています…';
+    api('newbook', { name: n }).then(function (r) {
+      fillBooks(r.books, r.name); closeNew();
+      card('<span class=ok>「' + esc(r.name) + '」を作りました。</span>これから送るものはこの本に入ります');
+    }).catch(function (e) { card('<span class=ng>作れませんでした（' + esc(e.message) + '）</span>'); })
+      .then(function () { b.disabled = false; b.textContent = '作る'; });
+  });
 
   function links(r) {
     var a = [];
